@@ -1,0 +1,6 @@
+{
+    "model": "Best trained model",
+    "MAE": 36.7198,
+    "RMSE": 45.5047,
+    "number_of_test_engines": 248
+}

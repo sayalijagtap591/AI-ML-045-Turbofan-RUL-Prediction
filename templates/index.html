@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>AI Turbofan RUL Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: #070d1b;
+        color: #e5eefc;
+      }
+
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 245px;
+        background: #0b1327;
+        padding: 25px 16px;
+        border-right: 1px solid #1b2a45;
+        flex-shrink: 0;
+      }
+
+      .brand {
+        color: #23d5e5;
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .brand-subtitle {
+        color: #8192b2;
+        font-size: 12px;
+        margin-bottom: 35px;
+      }
+
+      .nav-title {
+        color: #8192b2;
+        font-size: 11px;
+        margin: 22px 10px 12px;
+        text-transform: uppercase;
+      }
+
+      .nav-item {
+        display: block;
+        width: 100%;
+        padding: 13px 12px;
+        margin-bottom: 8px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #b6c4dd;
+        text-align: left;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .nav-item:hover,
+      .nav-item.active {
+        background: #122743;
+        color: #23d5e5;
+      }
+
+      .sidebar-footer {
+        margin-top: 40px;
+        padding: 14px;
+        border: 1px solid #243653;
+        border-radius: 10px;
+        color: #a5b5d1;
+        font-size: 12px;
+        line-height: 1.8;
+      }
+
+      .main {
+        flex: 1;
+        min-width: 0;
+        padding: 28px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+      }
+
+      .topbar h1 {
+        font-size: 27px;
+        margin-bottom: 8px;
+      }
+
+      .muted {
+        color: #8fa2c3;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .status {
+        background: #102d2d;
+        color: #4ce4c1;
+        border: 1px solid #1a665e;
+        border-radius: 20px;
+        padding: 10px 14px;
+        font-size: 12px;
+      }
+
+      .section {
+        display: none;
+      }
+
+      .section.active {
+        display: block;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+
+      .card {
+        background: #101b31;
+        border: 1px solid #20304c;
+        border-radius: 13px;
+        padding: 20px;
+        min-width: 0;
+      }
+
+      .card-label {
+        color: #91a4c5;
+        font-size: 12px;
+        margin-bottom: 15px;
+      }
+
+      .card-value {
+        color: #23d5e5;
+        font-size: 27px;
+        font-weight: bold;
+        overflow-wrap: anywhere;
+      }
+
+      .card-note {
+        color: #8fa2c3;
+        font-size: 11px;
+        margin-top: 10px;
+        line-height: 1.5;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 22px;
+      }
+
+      .panel {
+        background: #101b31;
+        border: 1px solid #20304c;
+        border-radius: 13px;
+        padding: 22px;
+        margin-bottom: 20px;
+        min-width: 0;
+      }
+
+      .panel h2 {
+        font-size: 17px;
+        margin-bottom: 8px;
+      }
+
+      .panel-description {
+        color: #91a4c5;
+        font-size: 12px;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      .chart-box {
+        position: relative;
+        width: 100%;
+        height: 260px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .field {
+        min-width: 0;
+      }
+
+      .field label {
+        display: block;
+        color: #bdcbe1;
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+
+      .field input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #2a3b59;
+        border-radius: 7px;
+        background: #091326;
+        color: white;
+        outline: none;
+      }
+
+      .field input:focus {
+        border-color: #23d5e5;
+      }
+
+      .btn {
+        display: inline-block;
+        border: 0;
+        border-radius: 8px;
+        padding: 13px 18px;
+        background: #13b8c8;
+        color: #04121f;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        background: #42e1e8;
+      }
+
+      .btn-secondary {
+        background: #243653;
+        color: white;
+      }
+
+      .button-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+      }
+
+      .result-box {
+        margin-top: 20px;
+        padding: 22px;
+        border: 1px solid #187d7b;
+        background: #0c292d;
+        border-radius: 12px;
+      }
+
+      .result-value {
+        color: #42e1e8;
+        font-size: 38px;
+        font-weight: bold;
+        margin: 12px 0;
+      }
+
+      .error-box {
+        background: #351820;
+        border: 1px solid #873447;
+        color: #ffb8c2;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 18px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 400px;
+      }
+
+      th,
+      td {
+        padding: 13px;
+        border-bottom: 1px solid #263650;
+        text-align: left;
+        font-size: 13px;
+      }
+
+      th {
+        color: #23d5e5;
+      }
+
+      td {
+        color: #d5e1f3;
+      }
+
+      footer {
+        text-align: center;
+        color: #7084a7;
+        font-size: 11px;
+        padding: 25px 0 5px;
+      }
+
+      @media (max-width: 1050px) {
+        .cards {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .sidebar {
+          width: 205px;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .layout {
+          display: block;
+        }
+
+        .sidebar {
+          width: 100%;
+        }
+
+        .main {
+          padding: 16px;
+        }
+
+        .grid-2,
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar h1 {
+          font-size: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand">TURBO AI</div>
+        <div class="brand-subtitle">ENGINE HEALTH INTELLIGENCE</div>
+
+        <div class="nav-title">MAIN MENU</div>
+
+        <button
+          class="nav-item active"
+          onclick="showSection('dashboard', this)"
+        >
+          ◈ Dashboard
+        </button>
+
+        <button class="nav-item" onclick="showSection('prediction', this)">
+          ◉ RUL Prediction
+        </button>
+
+        <button class="nav-item" onclick="showSection('sensors', this)">
+          ◌ Sensor Analytics
+        </button>
+
+        <button class="nav-item" onclick="showSection('models', this)">
+          ▤ Model Comparison
+        </button>
+
+        <div class="sidebar-footer">
+          <strong>PROJECT STATUS</strong><br />
+          NASA C-MAPSS FD004<br />
+          Regression Models<br />
+          Predictive Maintenance
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <div>
+            <h1 id="page-title">AI Engine Dashboard</h1>
+            <p class="muted">
+              Turbofan degradation monitoring and remaining useful life
+              estimation.
+            </p>
+          </div>
+
+          <div class="status">● LOCAL APPLICATION</div>
+        </div>
+
+        <!-- DASHBOARD SECTION -->
+
+        <section id="dashboard" class="section active">
+          <div class="cards">
+            <div class="card">
+              <div class="card-label">DATASET</div>
+              <div class="card-value">FD004</div>
+              <div class="card-note">NASA C-MAPSS benchmark</div>
+            </div>
+
+            <div class="card">
+              <div class="card-label">INPUT FEATURES</div>
+              <div class="card-value">26</div>
+              <div class="card-note">Cycle, operating settings and sensors</div>
+            </div>
+
+            <div class="card">
+              <div class="card-label">ML MODELS</div>
+              <div class="card-value">02</div>
+              <div class="card-note">Lasso and Ridge Regression</div>
+            </div>
+
+            <div class="card">
+              <div class="card-label">LATEST PREDICTION</div>
+              <div class="card-value">
+                {% if prediction is not none %} {{ "%.1f"|format(prediction) }}
+                {% else %} -- {% endif %}
+              </div>
+              <div class="card-note">
+                Remaining cycles; -- means not calculated
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <h2>Engine Monitoring</h2>
+              <p class="panel-description">
+                Enter engine operating conditions and sensor measurements to
+                estimate remaining useful life.
+              </p>
+
+              <button
+                class="btn"
+                onclick="
+                  showSection(
+                    'prediction',
+                    document.querySelectorAll('.nav-item')[1],
+                  )
+                "
+              >
+                Open RUL Prediction
+              </button>
+            </div>
+
+            <div class="panel">
+              <h2>System Information</h2>
+
+              <p class="muted">
+                Dataset: NASA C-MAPSS FD004<br /><br />
+                Regression: Lasso / Ridge<br /><br />
+                Interface: Flask + HTML + CSS + JavaScript<br /><br />
+                Purpose: Predictive maintenance research
+              </p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Prediction History</h2>
+            <p class="panel-description">
+              This table displays the latest result from the current request. It
+              is not persistent history storage.
+            </p>
+
+            {% if prediction is not none %}
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Predicted RUL</th>
+                    <th>Unit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Prediction generated</td>
+                    <td>{{ "%.2f"|format(prediction) }}</td>
+                    <td>Cycles</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <p class="muted">No prediction generated in this request yet.</p>
+            {% endif %}
+          </div>
+        </section>
+
+        <!-- PREDICTION SECTION -->
+
+        <section id="prediction" class="section">
+          <div class="panel">
+            <h2>Remaining Useful Life Prediction</h2>
+
+            <p class="panel-description">
+              Enter all required measurements. Use realistic dataset values. The
+              backend must apply the same feature engineering used during
+              training.
+            </p>
+
+            <form method="POST" action="/">
+              <div class="panel">
+                <h2>Engine Information</h2>
+
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="cycle">Engine Cycle</label>
+                    <input
+                      type="number"
+                      id="cycle"
+                      name="cycle"
+                      min="1"
+                      step="any"
+                      value="{{ request.form.get('cycle', '') }}"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <h2>Operating Settings</h2>
+
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="op_setting_1">Operating Setting 1</label>
+                    <input
+                      type="number"
+                      id="op_setting_1"
+                      name="op_setting_1"
+                      step="any"
+                      value="{{ request.form.get('op_setting_1', '') }}"
+                      required
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label for="op_setting_2">Operating Setting 2</label>
+                    <input
+                      type="number"
+                      id="op_setting_2"
+                      name="op_setting_2"
+                      step="any"
+                      value="{{ request.form.get('op_setting_2', '') }}"
+                      required
+                    />
+                  </div>
+
+                  <div class="field">
+                    <label for="op_setting_3">Operating Setting 3</label>
+                    <input
+                      type="number"
+                      id="op_setting_3"
+                      name="op_setting_3"
+                      step="any"
+                      value="{{ request.form.get('op_setting_3', '') }}"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <h2>Engine Sensor Measurements</h2>
+
+                <div class="form-grid">
+                  {% for i in range(1, 22) %}
+                  <div class="field">
+                    <label for="sensor_{{ i }}"> Sensor {{ i }} </label>
+
+                    <input
+                      type="number"
+                      id="sensor_{{ i }}"
+                      name="sensor_{{ i }}"
+                      step="any"
+                      value="{{ request.form.get('sensor_' ~ i, '') }}"
+                      required
+                    />
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <div class="button-row">
+                <button type="submit" class="btn">
+                  Predict Remaining Useful Life
+                </button>
+
+                <button type="reset" class="btn btn-secondary">
+                  Reset Form
+                </button>
+              </div>
+            </form>
+
+            {% if prediction is not none %}
+            <div class="result-box">
+              <p class="muted">ESTIMATED REMAINING USEFUL LIFE</p>
+
+              <div class="result-value">{{ "%.2f"|format(prediction) }}</div>
+
+              <p>Estimated remaining operating cycles</p>
+
+              <p class="muted">
+                This is a model estimate, not a guarantee of actual engine life.
+              </p>
+            </div>
+            {% endif %} {% if error %}
+            <div class="error-box">
+              <strong>Prediction Error</strong>
+              <p>{{ error }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </section>
+        <!-- SENSOR ANALYTICS SECTION -->
+
+        <section id="sensors" class="section">
+          <div class="panel">
+            <h2>Sensor Analytics</h2>
+
+            <p class="panel-description">
+              Interactive example chart. It shows illustrative values, not
+              actual NASA measurements from your dataset.
+            </p>
+
+            <div class="chart-box">
+              <canvas id="sensorChart"></canvas>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Sensor Input Overview</h2>
+
+            <p class="muted">
+              This application accepts 21 sensor values through the prediction
+              form. Actual trend analysis requires loading real engine
+              measurements from the dataset.
+            </p>
+          </div>
+        </section>
+
+        <!-- MODEL COMPARISON SECTION -->
+
+        <section id="models" class="section">
+          <div class="panel">
+            <h2>Lasso vs Ridge Regression</h2>
+
+            <p class="panel-description">
+              Model evaluation metrics should be loaded from the actual training
+              output. No performance figures are assumed here.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Lasso Regression</th>
+                    <th>Ridge Regression</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>MAE</td>
+                    <td>Check model_metrics.json</td>
+                    <td>Check model_metrics.json</td>
+                  </tr>
+
+                  <tr>
+                    <td>RMSE</td>
+                    <td>Check model_metrics.json</td>
+                    <td>Check model_metrics.json</td>
+                  </tr>
+
+                  <tr>
+                    <td>Best Model</td>
+                    <td colspan="2">Determined by actual validation RMSE</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Model Performance Chart</h2>
+
+            <div class="chart-box">
+              <canvas id="modelChart"></canvas>
+            </div>
+
+            <p class="muted">
+              The chart uses placeholder data for visual demonstration. Replace
+              it with real MAE/RMSE values before presenting model performance.
+            </p>
+          </div>
+        </section>
+
+        <footer>
+          AI-ML-045 | Turbofan Engine Degradation Prediction<br />
+          NASA C-MAPSS FD004 | Educational Predictive Maintenance Project
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      function showSection(sectionId, button) {
+          document.querySelectorAll(".section").forEach(function(section) {
+              section.classList.remove("active");
+          });
+
+          const target = document.getElementById(sectionId);
+
+          if (target) {
+              target.classList.add("active");
+          }
+
+          document.querySelectorAll(".nav-item").forEach(function(item) {
+              item.classList.remove("active");
+          });
+
+          if (button) {
+              button.classList.add("active");
+          }
+
+          const titles = {
+              dashboard: "AI Engine Dashboard",
+              prediction: "RUL Prediction",
+              sensors: "Sensor Analytics",
+              models: "Model Comparison"
+          };
+
+          document.getElementById("page-title").textContent =
+              titles[sectionId] || "AI Engine Dashboard";
+
+          window.scrollTo({ top: 0, behavior: "smooth" });
+
+          if (sectionId === "sensors") {
+              renderSensorChart();
+          }
+
+          if (sectionId === "models") {
+              renderModelChart();
+          }
+      }
+
+
+      let sensorChartInstance = null;
+
+      function renderSensorChart() {
+          const canvas = document.getElementById("sensorChart");
+
+          if (!canvas || typeof Chart === "undefined") {
+              return;
+          }
+
+          if (sensorChartInstance) {
+              return;
+          }
+
+          sensorChartInstance = new Chart(canvas, {
+              type: "line",
+
+              data: {
+                  labels: ["Cycle 1", "Cycle 2", "Cycle 3", "Cycle 4", "Cycle 5"],
+
+                  datasets: [{
+                      label: "Illustrative Sensor Trend",
+                      data: [75, 78, 76, 83, 87],
+                      borderColor: "#23d5e5",
+                      backgroundColor: "rgba(35, 213, 229, 0.12)",
+                      fill: true,
+                      tension: 0.35
+                  }]
+              },
+
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+
+                  plugins: {
+                      legend: {
+                          labels: {
+                              color: "#d5e1f3"
+                          }
+                      }
+                  },
+
+                  scales: {
+                      x: {
+                          ticks: { color: "#91a4c5" },
+                          grid: { color: "#20304c" }
+                      },
+
+                      y: {
+                          ticks: { color: "#91a4c5" },
+                          grid: { color: "#20304c" }
+                      }
+                  }
+              }
+          });
+      }
+
+
+      let modelChartInstance = null;
+
+      function renderModelChart() {
+          const canvas = document.getElementById("modelChart");
+
+          if (!canvas || typeof Chart === "undefined") {
+              return;
+          }
+
+          if (modelChartInstance) {
+              return;
+          }
+
+          modelChartInstance = new Chart(canvas, {
+              type: "bar",
+
+              data: {
+                  labels: ["Lasso", "Ridge"],
+
+                  datasets: [{
+                      label: "Illustrative RMSE (not actual results)",
+                      data: [10, 8],
+                      backgroundColor: ["#13b8c8", "#667eea"]
+                  }]
+              },
+
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+
+                  plugins: {
+                      legend: {
+                          labels: {
+                              color: "#d5e1f3"
+                          }
+                      }
+                  },
+
+                  scales: {
+                      x: {
+                          ticks: { color: "#91a4c5" },
+                          grid: { color: "#20304c" }
+                      },
+
+                      y: {
+                          beginAtZero: true,
+                          ticks: { color: "#91a4c5" },
+                          grid: { color: "#20304c" }
+                      }
+                  }
+              }
+          });
+      }
+
+
+      // Display the prediction page again if a result or error was returned.
+      {% if prediction is not none or error %}
+          showSection(
+              "prediction",
+              document.querySelectorAll(".nav-item")[1]
+          );
+      {% endif %}
+    </script>
+  </body>
+</html>

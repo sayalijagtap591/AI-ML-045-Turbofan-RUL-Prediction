@@ -1,0 +1,15 @@
+[FOUND] .\data\train_FD004.txt
+[FOUND] .\data\test_FD004.txt
+[FOUND] .\data\RUL_FD004.txt
+[FOUND] .\Source_Code\inspect_data.py
+[FOUND] .\Source_Code\eda.py
+[FOUND] .\Source_Code\feature_engineering.py
+[FOUND] .\Source_Code\train_models.py
+[FOUND] .\Source_Code\evaluate_model.py
+[FOUND] .\Source_Code\app.py
+[FOUND] .\models\best_model.joblib
+[FOUND] .\outputs\train_features.csv
+[FOUND] .\outputs\test_features.csv
+[FOUND] .\templates\index.html
+[FOUND] .\README.md
+[FOUND] .\requirements.txt

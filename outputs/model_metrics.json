@@ -1,0 +1,14 @@
+{
+  "validation_metrics": {
+    "Lasso": {
+      "MAE": 46.76351011336261,
+      "RMSE": 58.391587736094785
+    },
+    "Ridge": {
+      "MAE": 46.598536771279406,
+      "RMSE": 58.36196913912896
+    }
+  },
+  "best_model": "Ridge",
+  "feature_count": 67
+}
