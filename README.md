@@ -1,137 +1,107 @@
-Turbofan Engine Degradation Prediction Using Machine Learning
+TURBO AI — Turbofan Engine Degradation Prediction
 
 1. Project Overview
 
-This project aims to predict the Remaining Useful Life (RUL) of turbofan engines using machine learning.
+TURBO AI is a machine learning-based predictive maintenance project that estimates the Remaining Useful Life (RUL) of turbofan engines using sensor measurements and operating conditions.
 
-Remaining Useful Life is the estimated number of operating cycles remaining before an engine reaches its end-of-life condition.
+The project uses the NASA C-MAPSS FD004 dataset and provides a web-based dashboard developed using Flask.
 
-The project uses NASA's C-MAPSS turbofan engine simulation dataset, specifically the FD004 subset.
+2. Project Objectives
 
-2. Objectives
+- Estimate the Remaining Useful Life of a turbofan engine.
+- Analyze sensor data to identify degradation patterns.
+- Compare Lasso Regression and Ridge Regression.
+- Display predictions through an interactive dashboard.
+- Generate downloadable PDF prediction reports.
+- Maintain a history of engine predictions.
 
-- Analyze turbofan engine sensor data.
-- Perform exploratory data analysis.
-- Generate useful features from sensor readings.
-- Train Lasso Regression and Ridge Regression models.
-- Evaluate predictions using MAE and RMSE.
-- Develop a Flask-based web interface for demonstration.
+3. Dataset
 
-3. Technologies Used
+Dataset: NASA C-MAPSS FD004
+
+The dataset contains engine operating cycles, three operational settings, and 21 sensor measurements.
+
+The project uses the training data, test data, and test-set RUL values for model development and evaluation.
+
+4. Technologies Used
 
 - Python
-- Pandas
-- NumPy
-- Matplotlib
-- Seaborn
+- Pandas and NumPy
 - Scikit-learn
+- Matplotlib
 - Flask
-- HTML
-- CSS
-- Joblib
+- HTML and CSS
+- JavaScript and Chart.js
+- ReportLab
+- NASA C-MAPSS dataset
 
-4. Dataset
+5. Methodology
 
-Dataset: NASA C-MAPSS Turbofan Engine Degradation Simulation Data
+1. Load the training and testing datasets.
+2. Inspect the data and handle preprocessing requirements.
+3. Calculate Remaining Useful Life values for training engines.
+4. Generate additional features from sensor measurements.
+5. Calculate rolling means, rolling standard deviations, and sensor differences.
+6. Train Lasso Regression and Ridge Regression models.
+7. Compare model performance using evaluation metrics.
+8. Select the model according to validation performance.
+9. Integrate the trained model with a Flask application.
+10. Display predictions, engine health categories, and maintenance guidance.
+11. Generate PDF reports and save prediction history.
 
-Subset: FD004
-
-Files:
-
-- train_FD004.txt
-- test_FD004.txt
-- RUL_FD004.txt
-
-The dataset contains engine operating cycles, operating settings, and sensor measurements.
-
-5. Machine Learning Models
+6. Machine Learning Models
 
 Lasso Regression
 
-Lasso Regression uses L1 regularization and can reduce the influence of less useful features.
+Lasso Regression uses L1 regularization to penalize model coefficients and can reduce the influence of less useful features.
 
 Ridge Regression
 
-Ridge Regression uses L2 regularization to reduce overfitting and stabilize model coefficients.
+Ridge Regression uses L2 regularization to control model complexity and help reduce overfitting.
 
-The model selection process compares validation performance using RMSE.
+The final model should be identified using the actual model selection results generated during training.
 
-6. Project Structure
+7. Dashboard Features
 
-AI-ML-045_Turbofan_RUL_Project/
-├── Source_Code/
-│ ├── inspect_data.py
-│ ├── eda.py
-│ ├── feature_engineering.py
-│ ├── train_models.py
-│ ├── evaluate_model.py
-│ └── app.py
-├── data/
-│ ├── train_FD004.txt
-│ ├── test_FD004.txt
-│ └── RUL_FD004.txt
-├── models/
-├── outputs/
-├── templates/
-│ └── index.html
-├── requirements.txt
-└── README.md
+- Engine ID and operating-cycle selection
+- Remaining Useful Life prediction
+- Engine health category
+- Sensor analytics
+- Maintenance guidance
+- Prediction history
+- Model performance information
+- Downloadable PDF reports
 
-7. Installation
+8. Evaluation
 
-Create a Python virtual environment:
+Model performance should be reported using the actual values produced by the training and evaluation scripts.
 
-python -m venv .venv
+Relevant metrics may include:
 
-Activate it in Windows PowerShell:
-
-.\.venv\Scripts\Activate.ps1
-
-Install dependencies:
-
-python -m pip install -r requirements.txt
-
-8. Running the Project
-
-Run the Python scripts in the following order:
-
-1. Inspect the dataset.
-2. Perform exploratory data analysis.
-3. Generate training and testing features.
-4. Train the machine learning models.
-5. Evaluate the trained model.
-6. Start the Flask application.
-
-Start the web application:
-
-python .\Source_Code\app.py
-
-Open the local address displayed in the terminal.
-
-9. Evaluation Metrics
-
-The project uses:
-
-- Mean Absolute Error (MAE)
 - Root Mean Squared Error (RMSE)
+- Mean Absolute Error (MAE)
+- Coefficient of Determination (R²)
 
-Actual evaluation values should be recorded after successfully running the evaluation script.
+Do not enter estimated or invented metric values.
+
+9. Running the Application
+
+Activate the project's virtual environment and install the required dependencies.
+
+Run the Flask application from the project root:
+
+python -u .\Source_Code\app.py
+
+Open the following address in a browser:
+
+http://127.0.0.1:5000
 
 10. Limitations
 
-This is an educational machine learning prototype. Prediction quality depends on the trained model and the correctness of input features.
+This project is an educational machine learning prototype. Its predictions are estimates and must not be treated as certified engine-safety assessments.
 
-The demonstration application must not be used to make real aircraft maintenance decisions.
+Actual aircraft maintenance decisions require approved engineering procedures, validated models, and qualified technical personnel.
 
-11. Future Enhancements
+11. Conclusion
 
-- Improve feature engineering.
-- Compare additional regression models.
-- Add prediction visualizations.
-- Improve the web interface.
-- Add CSV upload for batch predictions.
-- Add automated model evaluation reports.
-
-12. Conclusion
-
-This project demonstrates a machine learning workflow for turbofan engine Remaining Useful Life prediction, from data analysis and feature engineering to model training, evaluation, and a web-based demonstration.
+The project demonstrates how sensor data and regression models can be used to estimate turbofan engine Remaining Useful Life. The Flask dashboard provides a convenient interface for exploring predictions, reviewing sensor information, maintaining prediction history, and generating reports.
